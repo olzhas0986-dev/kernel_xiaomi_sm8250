@@ -90,12 +90,12 @@ struct bcl_peripheral_data {
 struct bcl_device {
 	struct regmap			*regmap;
 	uint16_t			fg_bcl_addr;
+	bool 			ibat_use_qg_adc;
 	struct bcl_peripheral_data	param[BCL_TYPE_MAX];
 };
 
 static struct bcl_device *bcl_devices[MAX_PERPH_COUNT];
 static int bcl_device_ct;
-static bool ibat_use_qg_adc;
 
 static int bcl_read_register(struct bcl_device *bcl_perph, int16_t reg_offset,
 				unsigned int *data)
@@ -157,23 +157,23 @@ static void convert_adc_to_vbat_val(int *val)
 	*val = (*val * BCL_VBAT_SCALING_UV) / 1000;
 }
 
-static void convert_ibat_to_adc_val(int *val)
+static void convert_ibat_to_adc_val(struct bcl_device *bcl_perph, int *val)
 {
 	/*
 	 * Threshold register is bit shifted from ADC MSB.
 	 * So the scaling factor is half.
 	 */
-	if (ibat_use_qg_adc)
+	if (bcl_perph->ibat_use_qg_adc)
 		*val = (int)div_s64(*val * 2000 * 2, BCL_IBAT_SCALING_UA);
 	else
 		*val = (int)div_s64(*val * 2000, BCL_IBAT_SCALING_UA);
 
 }
 
-static void convert_adc_to_ibat_val(int *val)
+static void convert_adc_to_ibat_val(struct bcl_device *bcl_perph, int *val)
 {
 	/* Scaling factor will be half if ibat_use_qg_adc is true */
-	if (ibat_use_qg_adc)
+	if (bcl_perph->ibat_use_qg_adc)
 		*val = (int)div_s64(*val * BCL_IBAT_SCALING_UA, 2 * 1000);
 	else
 		*val = (int)div_s64(*val * BCL_IBAT_SCALING_UA, 1000);
@@ -202,7 +202,7 @@ static int bcl_set_ibat(void *data, int low, int high)
 	}
 
 	ibat_ua = thresh_value;
-	convert_ibat_to_adc_val(&thresh_value);
+	convert_ibat_to_adc_val(bat_data->dev, &thresh_value);
 	val = (int8_t)thresh_value;
 	switch (bat_data->type) {
 	case BCL_IBAT_LVL0:
@@ -254,7 +254,7 @@ static int bcl_read_ibat(void *data, int *adc_value)
 		 */
 		*adc_value = bat_data->last_val;
 	} else {
-		convert_adc_to_ibat_val(adc_value);
+		convert_adc_to_ibat_val(bat_data->dev, adc_value);
 		bat_data->last_val = *adc_value;
 	}
 	pr_debug("ibat:%d mA ADC:0x%02x\n", bat_data->last_val, val);
@@ -459,7 +459,7 @@ static int bcl_get_devicetree_data(struct platform_device *pdev,
 		return -ENODEV;
 	}
 
-	ibat_use_qg_adc =  of_property_read_bool(dev_node,
+	bcl_perph->ibat_use_qg_adc =  of_property_read_bool(dev_node,
 				"qcom,ibat-use-qg-adc-5a");
 
 	return ret;
