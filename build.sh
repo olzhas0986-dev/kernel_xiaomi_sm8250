@@ -61,7 +61,7 @@ export PATH
 export ARCH=arm64
 
 # Каталог для сборки MagicTime
-if [ "$DEVICE" = "alioth" ]; then
+if [ "$DEVICE" = "alioth" ] || [ "$DEVICE" = "munch" ]; then
     MAGIC_TIME_DIR="$KERNEL_DIR/MagicTime"
 else
     MAGIC_TIME_DIR="$KERNEL_DIR/MagicTime2"
