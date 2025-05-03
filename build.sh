@@ -10,10 +10,10 @@ start_time=$(date +%s)
 rm -rf out
 
 # Основной каталог
-MAINPATH=/home/timisong # измените, если необходимо
+MAINPATH=/workspaces # измените, если необходимо
 
 # Каталог ядра
-KERNEL_DIR=$MAINPATH/kernel
+KERNEL_DIR=$MAINPATH
 KERNEL_PATH=$KERNEL_DIR/kernel_xiaomi_sm8250
 
 git log $LAST..HEAD > ../changelog.txt
@@ -94,8 +94,8 @@ export DTBPATH="$MAGIC_TIME_DIR/dtb"
 export DTBOPATH="$MAGIC_TIME_DIR/dtbo.img"
 export CROSS_COMPILE="aarch64-linux-gnu-"
 export CROSS_COMPILE_COMPAT="arm-linux-gnueabi-"
-export KBUILD_BUILD_USER="TIMISONG"
-export KBUILD_BUILD_HOST="timisong-dev"
+export KBUILD_BUILD_USER="olzhas0986"
+export KBUILD_BUILD_HOST="dev"
 
 # Запись времени сборки
 MAGIC_BUILD_DATE=$(date '+%Y-%m-%d_%H-%M-%S')
@@ -160,19 +160,19 @@ else
     7z a -mx9 MagicTime-$DEVICE-$MAGIC_BUILD_DATE.zip * -x!*.zip
     
     curl -s -X POST https://api.telegram.org/bot$TGTOKEN/sendMessage \
-    -d chat_id="@magictimekernel" \
+    -d chat_id="@Ximipurekernel1" \
     -d text="Компиляция завершилась успешно! Время выполнения: $elapsed_time секунд" \
-    -d message_thread_id="38153"
+    -d message_thread_id="3"
 
-    curl -s -X POST "https://api.telegram.org/bot$TGTOKEN/sendDocument?chat_id=@magictimekernel" \
+    curl -s -X POST "https://api.telegram.org/bot$TGTOKEN/sendDocument?chat_id=@Ximipurekernel1" \
     -F document=@"./MagicTime-$DEVICE-$MAGIC_BUILD_DATE.zip" \
     -F caption="MagicTime ${VERSION}${PREFIX}${BUILD} (${BUILD_TYPE}) branch: ${BRANCH}" \
-    -F message_thread_id="38153"
+    -F message_thread_id="3"
     
-    curl -s -X POST "https://api.telegram.org/bot$TGTOKEN/sendDocument?chat_id=@magictimekernel" \
+    curl -s -X POST "https://api.telegram.org/bot$TGTOKEN/sendDocument?chat_id=@Ximipurekernel1" \
     -F document=@"../changelog.txt" \
     -F caption="Latest changes" \
-    -F message_thread_id="38153"
+    -F message_thread_id="3"
 
     rm -rf MagicTime-$DEVICE-$MAGIC_BUILD_DATE.zip
 
