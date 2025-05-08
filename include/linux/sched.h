@@ -132,7 +132,6 @@ enum fps {
 	FPS144 = 144,
 };
 
-#ifdef CONFIG_DEBUG_ATOMIC_SLEEP
 
 /*
  * Special states are those that do not use the normal wait-loop pattern. See
@@ -140,6 +139,8 @@ enum fps {
  */
 #define is_special_task_state(state)				\
 	((state) & (__TASK_STOPPED | __TASK_TRACED | TASK_PARKED | TASK_DEAD))
+
+#ifdef CONFIG_DEBUG_ATOMIC_SLEEP
 
 #define __set_current_state(state_value)			\
 	do {							\
@@ -1437,7 +1438,6 @@ struct task_struct {
 
 	/* bca62a0ae565 ("sched/tune: Fix improper accounting of tasks") */
 	ANDROID_KABI_RESERVE(7);
-
 #ifdef CONFIG_KSU_SUSFS
 	ANDROID_KABI_USE(8, u64 susfs_last_fake_mnt_id);
 #else

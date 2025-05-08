@@ -4483,6 +4483,9 @@ static void __sched notrace __schedule(bool preempt)
 				!(prev_state & TASK_NOLOAD) &&
 				!(prev->flags & PF_FROZEN);
 
+			if (unlikely(is_special_task_state(prev_state)))
+				flags |= DEQUEUE_SPECIAL;
+
 			/*
 			 * __schedule()			ttwu()
 			 *   prev_state = prev->state;	  if (READ_ONCE(p->on_rq) && ...)
